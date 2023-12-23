@@ -7,9 +7,9 @@ const Chat = ({name}) => {
     
     const Messages = (props) => {
         return (
-            <View style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => handleDeleteMessage()}>
                     <Text style={styles.itemText}>{props.text}</Text>
-            </View>
+            </TouchableOpacity>
 
         );
     };
@@ -24,18 +24,34 @@ const Chat = ({name}) => {
         } else {
         setMessageItems([...messageItems, message]);
         setMessage(null);
-        AsyncStorage.setItem('messages', JSON.stringify(messageItems))
+        AsyncStorage.setItem('messages', JSON.stringify([...messageItems, message]))
         .then(() => console.log('Messages stored successfully'))
         .catch((error) => console.error('Error storing messages:', error));
         }
     }
+    
+    const handleDeleteMessage = (indexToRemove) => {
+      // Create a copy of the messages array
+      const updatedMessages = [...messageItems];
+      
+      // Remove the specific message
+      updatedMessages.splice(indexToRemove, 1);
+      
+      // Update state
+      setMessageItems(updatedMessages);
+      
+      // Update AsyncStorage
+      AsyncStorage.setItem('messages', JSON.stringify(updatedMessages))
+      .then(() => console.log('Message removed successfully'))
+      .catch((error) => console.error('Error removing message:', error));
+    };
+    
     useEffect(() => {
       AsyncStorage.getItem('messages')
         .then(messagesString => messagesString ? JSON.parse(messagesString) : [])
         .then(messages => setMessageItems(messages))
         .catch((error) => console.error('Error retrieving messages:', error));
     }, []);
-
     return (
         <View style={styles.container}>
 
@@ -46,7 +62,7 @@ const Chat = ({name}) => {
           {
               messageItems.map((item, index) => {
                 return (
-                  <Messages key={index} text={item}/>
+                  <Messages key={index} text={item.text}/>
                   )
               })
           }
@@ -63,6 +79,20 @@ const Chat = ({name}) => {
         </View>
       );
 }
+
+    const Chat_1 = ({navigation}, {name = 'BasedSigma'}) => {
+      
+      return (
+          <Chat name={name} />
+      )
+    };
+
+    const Chat_2 = ({navigation}, {name = 'GigaChad'}) => {
+      
+      return (
+          <Chat name={name} />
+      )
+  };
 
 
 
@@ -125,3 +155,4 @@ const styles = StyleSheet.create({
 });
 
 export default Chat;
+export {Chat_1, Chat_2};
